@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-deploy
+  namespace: my-sample-todo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: node1
+  template:
+    metadata:
+      labels:
+        app: node1
+    spec:
+      containers:
+        - name: todoapp
+          image: vimalacr.azurecr.io/samples/vimaltodo:v1.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
+      imagePullSecrets:
+        - name: acr-secret # Reference the Kubernetes Secret for ACR authentication
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoapp
+  namespace: my-sample-todo
+spec:
+  type: LoadBalancer
+  selector:
+    app: node1
+  ports:
+    - port: 3000
+      targetPort: 3000

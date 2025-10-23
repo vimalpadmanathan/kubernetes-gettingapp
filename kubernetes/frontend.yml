@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  labels:
+    app: web-app
+spec:
+  replicas: 2 # Number of instances of your web app
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: web-app-container
+        image: vimalacr.azurecr.io/samples/vimaltodo:v1.2
+        ports:
+        - containerPort: 3000 # Port your web app listens on
+        env:
+        - name: DATABASE_HOST
+          value: mysql # Name of your database service
+        - name: DATABASE_PORT
+          value: "3306" # Port your database listens on
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+spec:
+  selector:
+    app: web-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer # Or LoadBalancer for cloud environments
