@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ad-deployment
+  labels:
+    app: todo-web-app
+spec:
+  replicas: 2 # Number of instances of your web app
+  selector:
+    matchLabels:
+      app: todo-web-app
+  template:
+    metadata:
+      labels:
+        app: todo-web-app
+    spec:
+      containers:
+      - name: web-app-container
+        image: vimalacr.azurecr.io/sample/azuredevopstodo:1
+        ports:
+        - containerPort: 3001 # Port your web app listens on
+        env:
+        - name: DATABASE_HOST
+          value: mysql # Name of your database service
+        - name: DATABASE_PORT
+          value: "3306" # Port your database listens on
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ad-app-service
+spec:
+  selector:
+    app: todo-web-app
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+  type: LoadBalancer # Or LoadBalancer for cloud environments
